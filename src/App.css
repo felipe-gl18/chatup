@@ -1,0 +1,15 @@
+.custom-container{
+    shape-outside: none;
+    box-shadow: none;
+    color: rgb(255, 255, 255);
+}
+
+::-webkit-scrollbar {
+    background-color: transparent;
+    width: 8px;
+}
+
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+  }

@@ -7,12 +7,23 @@ import {
 } from "react";
 import { Contact, contacts as contactsList } from "../util/contacts";
 
+export type File = {
+  name: string;
+  preview: string;
+  content: string;
+};
+
+export type Image = {
+  name: string;
+  content: string;
+};
+
 export type Message = {
   randomID: number;
   text: string;
   audio: string;
-  image: string;
-  file: string;
+  image: Image;
+  file: File;
 };
 
 export type MessagesState = {

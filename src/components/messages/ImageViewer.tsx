@@ -1,7 +1,8 @@
 import { DownloadIcon, XIcon } from "lucide-react";
 import { useState } from "react";
+import { Image } from "../../MainContext";
 
-export default function ImageViewer({ image }: { image: string }) {
+export default function ImageViewer({ image }: { image: Image }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const handleViewerToggle = () => {
@@ -10,8 +11,8 @@ export default function ImageViewer({ image }: { image: string }) {
 
   const handleDownloadImage = () => {
     const link = document.createElement("a");
-    link.href = image;
-    link.download = "image.jpg"; // Customize the filename
+    link.href = image.content;
+    link.download = image.name;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -21,7 +22,7 @@ export default function ImageViewer({ image }: { image: string }) {
     <>
       <img
         className="cursor-pointer transition duration-300 rounded-md hover:opacity-70"
-        src={image}
+        src={image.content}
         onClick={handleViewerToggle}
       />
       {isOpen && (
@@ -43,7 +44,7 @@ export default function ImageViewer({ image }: { image: string }) {
             </div>
             <img
               className="max-w-full max-h-[80vh] object-contain shadow-md"
-              src={image}
+              src={image.content}
             />
           </div>
         </div>

@@ -16,8 +16,15 @@ export default function MessageForm() {
     randomID: handleRandomID(),
     text: "",
     audio: "",
-    image: "",
-    file: "",
+    image: {
+      name: "",
+      content: "",
+    },
+    file: {
+      name: "",
+      preview: "",
+      content: "",
+    },
   });
 
   const handleFormClick = () => {
@@ -40,8 +47,15 @@ export default function MessageForm() {
     setMessage({
       text: "",
       audio: "",
-      image: "",
-      file: "",
+      image: {
+        name: "",
+        content: "",
+      },
+      file: {
+        name: "",
+        preview: "",
+        content: "",
+      },
       randomID: handleRandomID(),
     });
   };

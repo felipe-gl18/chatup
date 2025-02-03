@@ -17,13 +17,21 @@ export default function MessageFormFileUpload({
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
+    const file = files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
       setMessage((previousMessage) => {
-        return { ...previousMessage, file: reader.result as string };
+        return {
+          ...previousMessage,
+          file: {
+            name: file.name,
+            preview: reader.result as string,
+            content: reader.result as string,
+          },
+        };
       });
     };
-    reader.readAsDataURL(files[0]);
+    reader.readAsDataURL(file);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 

@@ -17,13 +17,20 @@ export default function MessageFormImageUpload({
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const images = event.target.files;
     if (!images) return;
+    const image = images[0];
     const reader = new FileReader();
     reader.onloadend = () => {
       setMessage((previousMessage) => {
-        return { ...previousMessage, image: reader.result as string };
+        return {
+          ...previousMessage,
+          image: {
+            name: image.name,
+            content: reader.result as string,
+          },
+        };
       });
     };
-    reader.readAsDataURL(images[0]);
+    reader.readAsDataURL(image);
     if (imageInputRef.current) imageInputRef.current.value = "";
   };
 

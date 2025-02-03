@@ -23,11 +23,13 @@ export default function Message({ message }: { message: MessageType }) {
   return (
     <div className="group w-max max-w-[360px] space-y-2">
       <div className="flex flex-col gap-4 p-4 rounded-b-2xl rounded-tr-2xl bg-slate-700 text-white">
+        {message.file.content == "" ? null : <FileViewer file={message.file} />}
+        {message.image.content == "" ? null : (
+          <ImageViewer image={message.image} />
+        )}
         {message.text == "" ? null : (
           <p className="break-normal">{message.text}</p>
         )}
-        {message.file == "" ? null : <FileViewer file={message.file} />}
-        {message.image == "" ? null : <ImageViewer image={message.image} />}
         {message.audio == "" ? null : (
           <audio src={message.audio} controls className="max-w-[360px]"></audio>
         )}

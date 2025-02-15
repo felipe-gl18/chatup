@@ -1,10 +1,11 @@
 import { MicIcon, MicOffIcon, PhoneOffIcon } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
-import { MainContext } from "../../MainContext";
+import { MessagesContext } from "../../MessagesContext";
+import { ContactsContext } from "../../ContactsContext";
 
 export default function VoiceCall() {
-  const { isVoiceCalling, setIsVoiceCalling, currentReciever } =
-    useContext(MainContext);
+  const { isVoiceCalling, setIsVoiceCalling } = useContext(MessagesContext);
+  const { selectedContact } = useContext(ContactsContext);
 
   const audioRef = useRef<HTMLAudioElement>(
     new Audio("../../audiosEffect/phoneRing.wav")
@@ -44,7 +45,7 @@ export default function VoiceCall() {
           !isAnswered && "animate-bounce"
         } w-[162px] h-[162px] rounded-full`}
         style={{
-          backgroundImage: `url(${currentReciever.img})`,
+          backgroundImage: `url(${selectedContact!.img})`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center center",
           backgroundSize: "cover",

@@ -1,28 +1,37 @@
 import { TrashIcon } from "lucide-react";
-import { MainContext, Message as MessageType } from "../../MainContext";
+import { MessagesContext, Message as MessageType } from "../../MessagesContext";
 import { useContext } from "react";
 import ImageViewer from "./ImageViewer";
 import FileViewer from "./FileViewer";
+import { ContactsContext } from "../../ContactsContext";
+import { UserContext } from "../../UserContext";
 
 export default function Message({ message }: { message: MessageType }) {
-  const { messages, setMessages, currentReciever } = useContext(MainContext);
+  const { user } = useContext(UserContext);
+  const { selectedContact } = useContext(ContactsContext);
+  const { handleDeleteMessage } = useContext(MessagesContext);
 
-  const handleDeleteMessage = () => {
-    const currentPhoneNumber = currentReciever.phonenumber;
+  const messageContainerStyles = {
+    [user!.phonenumber]: "items-start",
+    [selectedContact!.phonenumber]: "items-end",
+  };
 
-    const updatedMessages = messages[currentPhoneNumber].filter(
-      (msg) => msg.randomID !== message.randomID
-    );
-
-    setMessages((previousMessages) => ({
-      ...previousMessages,
-      [currentPhoneNumber]: updatedMessages,
-    }));
+  const messageContentStyles = {
+    [user!.phonenumber]: "bg-slate-700 text-white",
+    [selectedContact!.phonenumber]: "bg-gray-200 text-black",
   };
 
   return (
-    <div className="group w-max max-w-[360px] space-y-2">
-      <div className="flex flex-col gap-4 p-4 rounded-b-2xl rounded-tr-2xl bg-slate-700 text-white">
+    <div
+      className={`group w-full space-y-2 flex flex-col ${
+        messageContainerStyles[message.sender]
+      }`}
+    >
+      <div
+        className={`flex w-max max-w-[400px] flex-col gap-4 p-4 rounded-b-2xl rounded-tr-2xl ${
+          messageContentStyles[message.sender]
+        }`}
+      >
         {message.file.content == "" ? null : <FileViewer file={message.file} />}
         {message.image.content == "" ? null : (
           <ImageViewer image={message.image} />
@@ -31,11 +40,14 @@ export default function Message({ message }: { message: MessageType }) {
           <p className="break-normal">{message.text}</p>
         )}
         {message.audio == "" ? null : (
-          <audio src={message.audio} controls className="max-w-[360px]"></audio>
+          <audio src={message.audio} controls className="w-full"></audio>
         )}
       </div>
-      <div className="hidden group-hover:flex cursor-pointer text-red-400">
-        <TrashIcon size={18} onClick={handleDeleteMessage} />
+      <div className={`hidden group-hover:flex cursor-pointer text-red-400`}>
+        <TrashIcon
+          size={18}
+          onClick={() => handleDeleteMessage(message.randomID)}
+        />
       </div>
     </div>
   );

@@ -1,19 +1,20 @@
 import { useContext } from "react";
-import { Contact as ContactType } from "../../../util/contacts";
+import { ContactsContext, Contact as ContactType } from "../../ContactsContext";
 import { PhoneCallIcon, VideoIcon } from "lucide-react";
-import { MainContext } from "../../MainContext";
+import { MessagesContext } from "../../MessagesContext";
 import OptionsDropdown from "../OptionsDropdown";
+import Notification from "./Notification";
 
 export default function Contact({ contact }: { contact: ContactType }) {
-  const { setIsVoiceCalling, setIsVideoCalling, setCurrentReciever } =
-    useContext(MainContext);
-  const handleCurrentReciever = () => {
-    setCurrentReciever(contact);
+  const { notifications, setSelectedContact } = useContext(ContactsContext);
+  const { setIsVoiceCalling, setIsVideoCalling } = useContext(MessagesContext);
+  const handleSelectedContact = () => {
+    setSelectedContact(contact);
   };
   return (
     <div
       className="flex items-center gap-4 px-4 py-2 cursor-pointer transition duration-300 text-slate-200 hover:text-slate-700  hover:bg-slate-700 hover:bg-white"
-      onClick={handleCurrentReciever}
+      onClick={handleSelectedContact}
     >
       <div
         className={`flex-shrink-0 w-[80px] h-[80px] rounded-full`}
@@ -28,6 +29,9 @@ export default function Contact({ contact }: { contact: ContactType }) {
       <div className="flex-grow">
         <p className="font-bold">{contact.name}</p>
         <p className="text-sm text-slate-400">{contact.phonenumber}</p>
+        {notifications?.[contact.phonenumber] && (
+          <Notification text={notifications?.[contact.phonenumber].text} />
+        )}
       </div>
       <div className="flex-shrink-0 flex justify-center items-center gap-8">
         <div

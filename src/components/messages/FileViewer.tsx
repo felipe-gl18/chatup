@@ -1,6 +1,6 @@
 import { DownloadIcon, XIcon } from "lucide-react";
 import { useMemo, useState } from "react";
-import { File } from "../../MainContext";
+import { File } from "../../MessagesContext";
 
 import { Document, Page, pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -28,8 +28,8 @@ export default function FileViewer({ file }: { file: File }) {
   return (
     <>
       <Document file={memoizedFile} onClick={handleViewerToggle}>
-        <div className="w-[300px] h-[200px] overflow-hidden rounded-md rounded-tl-none cursor-pointer transition duration-300 hover:opacity-70">
-          <Page pageNumber={1} width={300} />
+        <div className="h-[200px] overflow-hidden rounded-md rounded-tl-none cursor-pointer transition duration-300 hover:opacity-70">
+          <Page pageNumber={1} width={400} />
         </div>
       </Document>
       {isOpen && (

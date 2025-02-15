@@ -13,7 +13,7 @@ export default function ContactSearch({
   };
   return (
     <div
-      className="flex justify-between bg-gray-600 mx-8 my-8 py-4 px-4 rounded-md"
+      className="flex flex-grow justify-between bg-gray-600 mx-8 my-8 py-4 px-4 rounded-md cursor-pointer"
       onClick={handleSearchClick}
     >
       <input

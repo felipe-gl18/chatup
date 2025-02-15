@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useRef, useState } from "react";
-import { Message } from "../../MainContext";
+import { Message } from "../../MessagesContext";
 import { MicIcon, PauseIcon, TrashIcon } from "lucide-react";
 
 export default function MessageFormAudioRecorder({

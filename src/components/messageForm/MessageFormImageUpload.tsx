@@ -1,6 +1,6 @@
 import { ImageIcon } from "lucide-react";
 import { ChangeEvent, Dispatch, SetStateAction, useRef } from "react";
-import { Message } from "../../MainContext";
+import { Message } from "../../MessagesContext";
 
 export default function MessageFormImageUpload({
   setMessage,

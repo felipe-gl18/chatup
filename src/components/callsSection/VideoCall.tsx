@@ -6,12 +6,12 @@ import {
   PhoneOffIcon,
 } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
-import { MainContext } from "../../MainContext";
+import { MessagesContext } from "../../MessagesContext";
 import { startWebcam } from "../../../util/startWebcam";
 import { stopWebcam } from "../../../util/stopWebcam";
 
 export default function VideoCall() {
-  const { isVideoCalling, setIsVideoCalling } = useContext(MainContext);
+  const { isVideoCalling, setIsVideoCalling } = useContext(MessagesContext);
 
   const audioRef = useRef<HTMLAudioElement>(
     new Audio("../../audiosEffect/phoneRing.wav")

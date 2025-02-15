@@ -1,12 +1,12 @@
 import { FormEvent, useContext, useRef, useState } from "react";
 import MessageFormInput from "./MessageFormInput";
-import { MainContext, Message } from "../../MainContext";
 import MessageFormAudioRecorder from "./MessageFormAudioRecorder";
 import MessageFormImageUpload from "./MessageFormImageUpload";
 import MessageFormFileUpload from "./MessageFormFileUpload";
+import { Message, MessagesContext } from "../../MessagesContext";
 
 export default function MessageForm() {
-  const { currentReciever, setMessages } = useContext(MainContext);
+  const { handleSendMessage } = useContext(MessagesContext);
 
   const messageInputRef = useRef<HTMLInputElement>(null);
 
@@ -34,16 +34,7 @@ export default function MessageForm() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (message.text || message.audio || message.image || message.file)
-      setMessages((previousMessages) => {
-        return {
-          ...previousMessages,
-          [currentReciever.phonenumber]: [
-            ...(previousMessages[currentReciever.phonenumber] || []),
-            message,
-          ],
-        };
-      });
+    handleSendMessage(message);
     setMessage({
       text: "",
       audio: "",

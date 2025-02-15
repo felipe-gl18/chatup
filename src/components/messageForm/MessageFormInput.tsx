@@ -1,5 +1,5 @@
 import { ChangeEvent, Dispatch, RefObject, SetStateAction } from "react";
-import { Message } from "../../MainContext";
+import { Message } from "../../MessagesContext";
 
 export default function MessageFormInput({
   messageInputRef,

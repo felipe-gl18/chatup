@@ -1,31 +1,31 @@
 import { useContext } from "react";
-import NoMessagesFound from "./NoMessagesFound";
-import { MainContext } from "../../MainContext";
-import CurrentMessageReciever from "./CurrentMessageReciever";
+import { MessagesContext } from "../../MessagesContext";
+import CurrentMessageReciever from "./SelectedContact";
 import MessageForm from "../messageForm/MessageForm";
 import Message from "./Message";
+import CurrentReceiverNotFound from "./SelectedContactNotFound";
+import { ContactsContext } from "../../ContactsContext";
 
 export default function Messages() {
-  const { messages, currentReciever } = useContext(MainContext);
+  const { selectedContact } = useContext(ContactsContext);
+  const { messages } = useContext(MessagesContext);
   return (
     <div className="w-4/6 h-screen justify-between flex flex-col">
-      <CurrentMessageReciever />
-      {!messages[currentReciever.phonenumber] ||
-      messages[currentReciever.phonenumber]?.length == 0 ? (
-        <div className="flex justify-center items-center w-full">
-          <NoMessagesFound />
-        </div>
+      {selectedContact ? (
+        <>
+          <CurrentMessageReciever />
+          {messages?.[selectedContact.phonenumber] && (
+            <div className="relative h-full p-4 space-y-4">
+              {messages[selectedContact.phonenumber].map((message) => (
+                <Message message={message} key={message.randomID} />
+              ))}
+            </div>
+          )}
+          <MessageForm />
+        </>
       ) : (
-        <div className="flex flex-col w-full h-full gap-4 overflow-auto p-4">
-          {messages[currentReciever.phonenumber].map((message) => (
-            <Message
-              message={message}
-              key={`${currentReciever}-${message.randomID}`}
-            />
-          ))}
-        </div>
+        <CurrentReceiverNotFound />
       )}
-      <MessageForm />
     </div>
   );
 }

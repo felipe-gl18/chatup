@@ -1,9 +1,10 @@
 import { useContext, useRef } from "react";
-import { MainContext } from "../MainContext";
 import { EllipsisIcon, TrashIcon } from "lucide-react";
+import { ContactsContext } from "../ContactsContext";
 
 export default function OptionsDropdown() {
-  const { contacts, setContacts, currentReciever } = useContext(MainContext);
+  const { selectedContact } = useContext(ContactsContext);
+  const { handleDeleteContact } = useContext(ContactsContext);
   const optionsRef = useRef<HTMLDivElement>(null);
   const items = [
     {
@@ -11,11 +12,7 @@ export default function OptionsDropdown() {
       Icon: <TrashIcon size={26} className="bg-transparent text-red-400" />,
       label: "Delete contact",
       action: () => {
-        setContacts(
-          contacts.filter(
-            (contact) => contact.phonenumber != currentReciever.phonenumber
-          )
-        );
+        handleDeleteContact(selectedContact!.phonenumber);
       },
     },
   ];

@@ -1,5 +1,5 @@
 import { ChangeEvent, Dispatch, SetStateAction, useRef } from "react";
-import { Message } from "../../MainContext";
+import { Message } from "../../MessagesContext";
 import { FileIcon } from "lucide-react";
 
 export default function MessageFormFileUpload({

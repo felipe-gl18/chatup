@@ -1,6 +1,6 @@
 import { DownloadIcon, XIcon } from "lucide-react";
 import { useState } from "react";
-import { Image } from "../../MainContext";
+import { Image } from "../../MessagesContext";
 
 export default function ImageViewer({ image }: { image: Image }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);

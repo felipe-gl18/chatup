@@ -17,6 +17,9 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const localAudioRef = useRef<HTMLAudioElement | null>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+
   const peerRef = useRef<RTCPeerConnection | null>(null);
 
   const [messages, setMessages] = useState<MessagesState | null>(null);
@@ -41,15 +44,21 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   const handleMakeCall = async () => {
     peerRef.current = new RTCPeerConnection(peerConfig);
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
+      video: currentCallingType == "video" ? true : false,
       audio: true,
     });
     stream
       .getTracks()
       .forEach((track) => peerRef.current?.addTrack(track, stream));
 
-    if (localVideoRef.current) {
-      localVideoRef.current.srcObject = stream;
+    if (currentCallingType == "video") {
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+    } else {
+      if (localAudioRef.current) {
+        localAudioRef.current.srcObject = stream;
+      }
     }
 
     const offer = await peerRef.current.createOffer();
@@ -59,7 +68,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       target: selectedContact!.phonenumber,
       sdp: peerRef.current.localDescription,
     });
-    setupPeerListeners(peerRef.current, "other-user-id");
+    setupPeerListeners(peerRef.current, selectedContact!.phonenumber);
   };
 
   const setupPeerListeners = (peer: RTCPeerConnection, target: string) => {
@@ -70,8 +79,14 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     };
 
     peer.ontrack = (event) => {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = event.streams[0];
+      if (currentCallingType == "video") {
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = event.streams[0];
+        }
+      } else {
+        if (remoteAudioRef.current) {
+          remoteAudioRef.current.srcObject = event.streams[0];
+        }
       }
     };
   };
@@ -188,23 +203,39 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
       socket.on("finish_call", () => {
         setIsOnACall(false);
+        if (currentCallingType == "video") {
+          const localStream = localVideoRef.current?.srcObject as MediaStream;
+          if (localStream)
+            localStream.getTracks().forEach((track) => track.stop());
+        } else {
+          const localStream = localAudioRef.current?.srcObject as MediaStream;
+          if (localStream)
+            localStream.getTracks().forEach((track) => track.stop());
+        }
         setCurrentCallingType("voice");
       });
 
       socket.on("offer", async ({ sdp, from }) => {
         peerRef.current = new RTCPeerConnection(peerConfig);
         peerRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
+        setupPeerListeners(peerRef.current, from);
 
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+          video: currentCallingType == "video" ? true : false,
           audio: true,
         });
         stream
           .getTracks()
           .forEach((track) => peerRef.current?.addTrack(track, stream));
 
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
+        if (currentCallingType == "video") {
+          if (localVideoRef.current) {
+            localVideoRef.current.srcObject = stream;
+          }
+        } else {
+          if (localAudioRef.current) {
+            localAudioRef.current.srcObject = stream;
+          }
         }
 
         const answer = await peerRef.current.createAnswer();
@@ -214,7 +245,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
           target: from,
           sdp: peerRef.current.localDescription,
         });
-        setupPeerListeners(peerRef.current, from);
       });
 
       socket.on("answer", ({ sdp }) => {
@@ -251,6 +281,8 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         setCurrentCallingType,
         localVideoRef,
         remoteVideoRef,
+        localAudioRef,
+        remoteAudioRef,
         isOnACall,
         setIsOnACall,
         handleSendMessage,

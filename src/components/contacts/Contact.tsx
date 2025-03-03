@@ -26,27 +26,29 @@ export default function Contact({ contact }: { contact: ContactType }) {
           imageRendering: "auto",
         }}
       ></div>
-      <div className="flex-grow">
-        <p className="font-bold">{contact.name}</p>
-        <p className="text-sm text-slate-400">{contact.phonenumber}</p>
-        {notifications?.[contact.phonenumber] && (
-          <Notification text={notifications?.[contact.phonenumber].text} />
-        )}
-      </div>
-      <div className="flex-shrink-0 flex justify-center items-center gap-8">
-        <div
-          onClick={() => handleRequestCall("voice", contact)}
-          className="transition duration-300 rounded-full hover:text-white hover:bg-red-400 p-4 hover:rounded-full"
-        >
-          <PhoneCallIcon size={26} />
+      <div className="flex items-center max-[1400px]:items-start w-full max-[1400px]:flex-col">
+        <div className="flex-grow">
+          <p className="font-bold">{contact.name}</p>
+          <p className="text-sm text-slate-400">{contact.phonenumber}</p>
+          {notifications?.[contact.phonenumber] && (
+            <Notification text={notifications?.[contact.phonenumber].text} />
+          )}
         </div>
-        <div
-          onClick={() => handleRequestCall("video", contact)}
-          className="transition duration-300 rounded-full hover:text-white hover:bg-red-400 p-4 hover:rounded-full"
-        >
-          <VideoIcon size={26} />
+        <div className="flex-shrink-0 flex justify-center items-center gap-8">
+          <div
+            onClick={() => handleRequestCall("voice", contact)}
+            className="transition duration-300 rounded-full hover:text-white hover:bg-red-400 p-4 hover:rounded-full"
+          >
+            <PhoneCallIcon size={26} />
+          </div>
+          <div
+            onClick={() => handleRequestCall("video", contact)}
+            className="transition duration-300 rounded-full hover:text-white hover:bg-red-400 p-4 hover:rounded-full"
+          >
+            <VideoIcon size={26} />
+          </div>
+          <OptionsDropdown />
         </div>
-        <OptionsDropdown />
       </div>
     </div>
   );

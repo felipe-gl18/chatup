@@ -43,6 +43,8 @@ type MessagesContextType = {
   setIsOnACall: Dispatch<SetStateAction<boolean>>;
   localVideoRef: MutableRefObject<HTMLVideoElement | null>;
   remoteVideoRef: MutableRefObject<HTMLVideoElement | null>;
+  localAudioRef: MutableRefObject<HTMLAudioElement | null>;
+  remoteAudioRef: MutableRefObject<HTMLAudioElement | null>;
   handleSendMessage: (message: Message) => void;
   handleDeleteMessage: (messageID: number) => void;
   handleRequestCall: (type: "voice" | "video", receiver: Contact) => void;
@@ -61,6 +63,8 @@ export const MessagesContext = createContext<MessagesContextType>({
   setIsOnACall: () => {},
   localVideoRef: { current: null },
   remoteVideoRef: { current: null },
+  localAudioRef: { current: null },
+  remoteAudioRef: { current: null },
   handleSendMessage: () => {},
   handleDeleteMessage: () => {},
   handleRequestCall: () => {},

@@ -2,9 +2,11 @@ import { useContext } from "react";
 import { PhoneCallIcon, VideoIcon } from "lucide-react";
 import OptionsDropdown from "../OptionsDropdown";
 import { ContactsContext } from "../../ContactsContext";
+import { MessagesContext } from "../../MessagesContext";
 
 export default function SelectedContact() {
   const { selectedContact } = useContext(ContactsContext);
+  const { handleRequestCall } = useContext(MessagesContext);
 
   return (
     <div className="w-full flex items-center gap-4 bg-white p-4 shadow-md">
@@ -21,13 +23,13 @@ export default function SelectedContact() {
       <p className="flex flex-grow font-bold">{selectedContact!.name}</p>
       <div className="flex-shrink-0 flex justify-center items-center gap-8">
         <div
-          onClick={() => {}}
+          onClick={() => handleRequestCall("voice", selectedContact!)}
           className="transition duration-300 rounded-full cursor-pointer  hover:text-white hover:bg-red-400 p-2 hover:rounded-full"
         >
           <PhoneCallIcon size={26} />
         </div>
         <div
-          onClick={() => {}}
+          onClick={() => handleRequestCall("video", selectedContact!)}
           className="transition duration-300 rounded-full cursor-pointer hover:text-white hover:bg-red-400 p-2 hover:rounded-full"
         >
           <VideoIcon size={26} />

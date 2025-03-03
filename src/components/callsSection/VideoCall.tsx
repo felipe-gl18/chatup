@@ -94,6 +94,7 @@ export default function VideoCall({
             className={`w-full h-full rounded-md ${!isCameraOn && "hidden"}`}
             autoPlay
             playsInline
+            muted
           ></video>
 
           <div

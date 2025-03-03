@@ -43,7 +43,15 @@ export default function VideoCall({
   return (
     <div className="absolute flex flex-col justify-center items-center w-screen h-screen bg-slate-700">
       <div className="relative flex justify-center items-center h-full w-full bg-white rounded-lg">
-        <div className="absolute  w-full h-full bg-slate-500 rounded-md"></div>
+        <div className="absolute  w-full h-full bg-slate-500 rounded-md">
+          <video
+            ref={remoteVideoRef}
+            className="w-full h-full"
+            autoPlay
+            playsInline
+            muted
+          ></video>
+        </div>
 
         <div className="absolute right-2 bottom-2 flex justify-center items-center w-[300px] h-[225px] bg-slate-100 rounded-md">
           {isCameraOn ? (

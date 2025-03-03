@@ -8,7 +8,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (user) {
-      const socketInstance = io("http://localhost:3000");
+      const socketInstance = io(import.meta.env.VITE_WS_URL);
 
       // emitting a register event to the websocket
       socketInstance.emit("register", user);

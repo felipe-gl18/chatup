@@ -7,7 +7,7 @@ import Notification from "./Notification";
 
 export default function Contact({ contact }: { contact: ContactType }) {
   const { notifications, setSelectedContact } = useContext(ContactsContext);
-  const { setIsVoiceCalling, setIsVideoCalling } = useContext(MessagesContext);
+  const { handleRequestCall } = useContext(MessagesContext);
   const handleSelectedContact = () => {
     setSelectedContact(contact);
   };
@@ -35,13 +35,13 @@ export default function Contact({ contact }: { contact: ContactType }) {
       </div>
       <div className="flex-shrink-0 flex justify-center items-center gap-8">
         <div
-          onClick={() => setIsVoiceCalling(true)}
+          onClick={() => handleRequestCall("voice", contact)}
           className="transition duration-300 rounded-full hover:text-white hover:bg-red-400 p-4 hover:rounded-full"
         >
           <PhoneCallIcon size={26} />
         </div>
         <div
-          onClick={() => setIsVideoCalling(true)}
+          onClick={() => handleRequestCall("video", contact)}
           className="transition duration-300 rounded-full hover:text-white hover:bg-red-400 p-4 hover:rounded-full"
         >
           <VideoIcon size={26} />

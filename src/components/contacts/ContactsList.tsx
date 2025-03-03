@@ -1,4 +1,4 @@
-import { Contact as ContactType } from "../../UserContext";
+import { Contact as ContactType } from "../../ContactsContext";
 import Contact from "./Contact";
 
 export default function ContactsList({

@@ -25,6 +25,7 @@ export default function MessageForm() {
       preview: "",
       content: "",
     },
+    sender: "",
   });
 
   const handleFormClick = () => {
@@ -47,6 +48,7 @@ export default function MessageForm() {
         preview: "",
         content: "",
       },
+      sender: "",
       randomID: handleRandomID(),
     });
   };

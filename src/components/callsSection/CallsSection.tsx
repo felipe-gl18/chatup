@@ -17,13 +17,7 @@ export default function CallsSection() {
   } = useContext(MessagesContext);
   const { selectedContact } = useContext(ContactsContext);
   const call = {
-    voice: (
-      <VoiceCall
-        requester={selectedContact!}
-        localVideoRef={localVideoRef!}
-        remoteVideoRef={remoteVideoRef!}
-      />
-    ),
+    voice: <VoiceCall requester={selectedContact!} />,
     video: (
       <VideoCall
         requester={selectedContact!}

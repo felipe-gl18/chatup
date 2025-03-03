@@ -5,7 +5,7 @@ import {
   MicOffIcon,
   PhoneOffIcon,
 } from "lucide-react";
-import { MutableRefObject, useContext, useRef, useState } from "react";
+import { MutableRefObject, useContext, useState } from "react";
 import { MessagesContext } from "../../MessagesContext";
 import { UserContext } from "../../UserContext";
 import { Contact } from "../../ContactsContext";
@@ -45,7 +45,7 @@ export default function VideoCall({
       <div className="relative flex justify-center items-center h-full w-full bg-white rounded-lg">
         <div className="absolute  w-full h-full bg-slate-500 rounded-md">
           <video
-            ref={localVideoRef}
+            ref={remoteVideoRef}
             className="w-full h-full"
             autoPlay
             playsInline

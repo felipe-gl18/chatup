@@ -1,18 +1,10 @@
 import { MicIcon, MicOffIcon, PhoneOffIcon } from "lucide-react";
-import { MutableRefObject, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { MessagesContext } from "../../MessagesContext";
 import { Contact, ContactsContext } from "../../ContactsContext";
 import { UserContext } from "../../UserContext";
 
-export default function VoiceCall({
-  requester,
-  localVideoRef,
-  remoteVideoRef,
-}: {
-  requester: Contact;
-  localVideoRef: MutableRefObject<HTMLVideoElement | null>;
-  remoteVideoRef: MutableRefObject<HTMLVideoElement | null>;
-}) {
+export default function VoiceCall({ requester }: { requester: Contact }) {
   const { socket } = useContext(UserContext);
   const { setIsOnACall } = useContext(MessagesContext);
   const { selectedContact } = useContext(ContactsContext);

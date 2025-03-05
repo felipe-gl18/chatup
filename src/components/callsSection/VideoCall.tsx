@@ -27,11 +27,8 @@ export default function VideoCall({
 
   const handleMicToggle = () => {
     const localStream = localVideoRef.current?.srcObject as MediaStream;
-
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0];
-      console.log(audioTrack);
-
       if (audioTrack) {
         if (isMicOn) {
           audioTrack.enabled = false;
@@ -46,12 +43,8 @@ export default function VideoCall({
 
   const handleCameraToggle = () => {
     const localStream = localVideoRef.current?.srcObject as MediaStream;
-    console.log(localStream);
-
     if (localStream) {
       const videoTrack = localStream.getVideoTracks()[0];
-      console.log(videoTrack);
-
       if (videoTrack) {
         if (isCameraOn) {
           videoTrack.enabled = false;

@@ -66,6 +66,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
     socket!.emit("offer", {
       target: selectedContact!.phonenumber,
+      from: user!.phonenumber,
       sdp: peerRef.current.localDescription,
     });
     setupPeerListeners(peerRef.current, selectedContact!.phonenumber);

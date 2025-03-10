@@ -12,13 +12,13 @@ export default function Message({ message }: { message: MessageType }) {
   const { handleDeleteMessage } = useContext(MessagesContext);
 
   const messageContainerStyles = {
-    [user!.phonenumber]: "items-start",
-    [selectedContact!.phonenumber]: "items-end",
+    [user!.token]: "items-start",
+    [selectedContact!.token]: "items-end",
   };
 
   const messageContentStyles = {
-    [user!.phonenumber]: "bg-slate-700 text-white",
-    [selectedContact!.phonenumber]: "bg-gray-200 text-black",
+    [user!.token]: "bg-slate-700 text-white",
+    [selectedContact!.token]: "bg-gray-200 text-black",
   };
 
   return (

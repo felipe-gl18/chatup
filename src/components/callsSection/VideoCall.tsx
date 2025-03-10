@@ -65,7 +65,7 @@ export default function VideoCall({
     if (localStream) localStream.getTracks().forEach((track) => track.stop());
 
     socket!.emit("finish_call", {
-      requesterPhonenumber: requester.phonenumber,
+      requesterToken: requester.token,
     });
   };
 

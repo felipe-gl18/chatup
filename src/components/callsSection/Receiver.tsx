@@ -1,4 +1,4 @@
-import { PhoneIcon, PhoneOffIcon } from "lucide-react";
+import { PhoneIcon, PhoneOffIcon, UserIcon } from "lucide-react";
 import { useContext } from "react";
 import { MessagesContext } from "../../MessagesContext";
 import { Contact } from "../../ContactsContext";
@@ -13,7 +13,7 @@ export default function Receiver({ requester }: { requester: Contact }) {
     setIsReceivingCall(false);
     setIsOnACall(true);
     socket!.emit("request_call_accepted", {
-      requesterPhonenumber: requester.phonenumber,
+      requesterToken: requester.token,
     });
   };
 
@@ -21,22 +21,15 @@ export default function Receiver({ requester }: { requester: Contact }) {
     setIsReceivingCall(false);
     setCurrentCallingType("voice");
     socket!.emit("request_call_rejected", {
-      requesterPhonenumber: requester.phonenumber,
+      requesterToken: requester.token,
     });
   };
 
   return (
     <div className="absolute flex flex-col justify-center items-center w-screen h-screen bg-slate-700">
-      <div
-        className={`flex-shrink-0 w-[162px] h-[162px] rounded-full`}
-        style={{
-          backgroundImage: `url(${requester!.img})`,
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center center",
-          backgroundSize: "cover",
-          imageRendering: "auto",
-        }}
-      ></div>
+      <div className="p-6 rounded-full bg-white text-black shadow-lg">
+        <UserIcon />
+      </div>
       <div className="flex gap-8 py-6">
         <div
           onClick={handleAcceptCall}

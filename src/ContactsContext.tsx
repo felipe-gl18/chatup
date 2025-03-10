@@ -1,9 +1,9 @@
 import { createContext, Dispatch, SetStateAction } from "react";
 
 export type Contact = {
-  name: string;
-  phonenumber: string;
-  img: string;
+  username: string;
+  email: string;
+  token: string;
 };
 
 export type Notification = {

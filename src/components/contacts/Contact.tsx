@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { ContactsContext, Contact as ContactType } from "../../ContactsContext";
-import { PhoneCallIcon, VideoIcon } from "lucide-react";
+import { PhoneCallIcon, UserIcon, VideoIcon } from "lucide-react";
 import { MessagesContext } from "../../MessagesContext";
 import OptionsDropdown from "../OptionsDropdown";
 import Notification from "./Notification";
@@ -16,22 +16,15 @@ export default function Contact({ contact }: { contact: ContactType }) {
       className="flex items-center gap-4 px-4 py-2 cursor-pointer transition duration-300 text-slate-200 hover:text-slate-700  hover:bg-slate-700 hover:bg-white"
       onClick={handleSelectedContact}
     >
-      <div
-        className={`flex-shrink-0 w-[80px] h-[80px] rounded-full`}
-        style={{
-          backgroundImage: `url(${contact.img})`,
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center center",
-          backgroundSize: "cover",
-          imageRendering: "auto",
-        }}
-      ></div>
+      <div className="p-6 rounded-full bg-white text-black shadow-lg">
+        <UserIcon />
+      </div>
       <div className="flex items-center max-[1400px]:items-start w-full max-[1400px]:flex-col">
         <div className="flex-grow">
-          <p className="font-bold">{contact.name}</p>
-          <p className="text-sm text-slate-400">{contact.phonenumber}</p>
-          {notifications?.[contact.phonenumber] && (
-            <Notification text={notifications?.[contact.phonenumber].text} />
+          <p className="font-bold">{contact.username}</p>
+          <p className="text-sm text-slate-400">{contact.email}</p>
+          {notifications?.[contact.token] && (
+            <Notification text={notifications?.[contact.token].text} />
           )}
         </div>
         <div className="flex-shrink-0 flex justify-center items-center gap-8">

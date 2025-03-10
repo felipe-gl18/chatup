@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { PhoneCallIcon, VideoIcon } from "lucide-react";
+import { PhoneCallIcon, UserIcon, VideoIcon } from "lucide-react";
 import OptionsDropdown from "../OptionsDropdown";
 import { ContactsContext } from "../../ContactsContext";
 import { MessagesContext } from "../../MessagesContext";
@@ -10,17 +10,10 @@ export default function SelectedContact() {
 
   return (
     <div className="w-full flex items-center gap-4 bg-white p-4 shadow-md">
-      <div
-        className="w-[80px] h-[80px] rounded-full shadow-md"
-        style={{
-          backgroundImage: `url(${selectedContact!.img})`,
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center center",
-          backgroundSize: "cover",
-          imageRendering: "auto",
-        }}
-      ></div>
-      <p className="flex flex-grow font-bold">{selectedContact!.name}</p>
+      <div className="p-6 rounded-full bg-white text-black shadow-lg">
+        <UserIcon />
+      </div>
+      <p className="flex flex-grow font-bold">{selectedContact!.username}</p>
       <div className="flex-shrink-0 flex justify-center items-center gap-8">
         <div
           onClick={() => handleRequestCall("voice", selectedContact!)}

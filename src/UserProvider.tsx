@@ -16,7 +16,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // listening when a new user is on the application
       socketInstance.on("newUser", () => {
         // emitting an event to get the users but the currently one
-        socketInstance.emit("getUsers", user.phonenumber);
+        socketInstance.emit("getUsers", user.token);
       });
 
       setSocket(socketInstance);

@@ -2,9 +2,9 @@ import { createContext, Dispatch, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
 
 export type User = {
-  name: string;
-  phonenumber: string;
-  img: string;
+  username: string;
+  email: string;
+  token: string;
 };
 
 type UserContextType = {

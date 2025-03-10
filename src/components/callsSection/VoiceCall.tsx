@@ -1,7 +1,7 @@
-import { MicIcon, MicOffIcon, PhoneOffIcon } from "lucide-react";
+import { MicIcon, MicOffIcon, PhoneOffIcon, UserIcon } from "lucide-react";
 import { MutableRefObject, useContext, useState } from "react";
 import { MessagesContext } from "../../MessagesContext";
-import { Contact, ContactsContext } from "../../ContactsContext";
+import { Contact } from "../../ContactsContext";
 import { UserContext } from "../../UserContext";
 
 export default function VoiceCall({
@@ -15,7 +15,6 @@ export default function VoiceCall({
 }) {
   const { socket } = useContext(UserContext);
   const { setIsOnACall } = useContext(MessagesContext);
-  const { selectedContact } = useContext(ContactsContext);
 
   const [isMicOn, setIsMicOn] = useState<boolean>(true);
 
@@ -37,26 +36,20 @@ export default function VoiceCall({
 
   const handleEndVoiceCall = () => {
     setIsOnACall(false);
+
     const localStream = localAudioRef.current?.srcObject as MediaStream;
     if (localStream) localStream.getTracks().forEach((track) => track.stop());
 
     socket!.emit("finish_call", {
-      requesterPhonenumber: requester.phonenumber,
+      requesterToken: requester.token,
     });
   };
 
   return (
     <div className="absolute flex flex-col gap-8 justify-center items-center w-screen h-screen bg-slate-700">
-      <div
-        className={`flex-shrink-0 w-[162px] h-[162px] rounded-full`}
-        style={{
-          backgroundImage: `url(${selectedContact!.img})`,
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center center",
-          backgroundSize: "cover",
-          imageRendering: "auto",
-        }}
-      ></div>
+      <div className="p-6 rounded-full bg-white text-black shadow-lg">
+        <UserIcon />
+      </div>
       <audio ref={localAudioRef} autoPlay playsInline muted></audio>
       <audio ref={remoteAudioRef} autoPlay playsInline></audio>
       <div className="flex gap-8">

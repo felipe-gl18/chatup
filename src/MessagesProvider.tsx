@@ -34,9 +34,10 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   const handleRequestCall = (type: "voice" | "video", receiver: Contact) => {
     setIsRequestingCall(true);
     setCurrentCallingType(type);
+
     socket!.emit("request_call", {
       requester: user,
-      receiver: receiver!.phonenumber,
+      receiver: receiver!.token,
       type,
     });
   };
@@ -65,11 +66,11 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     await peerRef.current.setLocalDescription(offer);
 
     socket!.emit("offer", {
-      target: selectedContact!.phonenumber,
-      from: user!.phonenumber,
+      target: selectedContact!.token,
+      from: user!.token,
       sdp: peerRef.current.localDescription,
     });
-    setupPeerListeners(peerRef.current, selectedContact!.phonenumber);
+    setupPeerListeners(peerRef.current, selectedContact!.token);
   };
 
   const setupPeerListeners = (peer: RTCPeerConnection, target: string) => {
@@ -97,41 +98,39 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       if (previousMessages) {
         return {
           ...previousMessages,
-          [selectedContact!.phonenumber]: [
-            ...(previousMessages[selectedContact!.phonenumber] || []),
-            { ...message, sender: user!.phonenumber },
+          [selectedContact!.token]: [
+            ...(previousMessages[selectedContact!.token] || []),
+            { ...message, sender: user!.token },
           ],
         };
       }
       return {
-        [selectedContact!.phonenumber]: [
-          { ...message, sender: user!.phonenumber },
-        ],
+        [selectedContact!.token]: [{ ...message, sender: user!.token }],
       };
     });
     socket!.emit("sendMessage", {
-      sender: user!.phonenumber,
-      receiver: selectedContact!.phonenumber,
+      sender: user!.token,
+      receiver: selectedContact!.token,
       message,
     });
   };
 
   const handleDeleteMessage = (
     messageID: number,
-    phonenumber: string = selectedContact!.phonenumber
+    token: string = selectedContact!.token
   ) => {
-    const updatedMessages = messages![phonenumber].filter(
+    const updatedMessages = messages![token].filter(
       (msg) => msg.randomID !== messageID
     );
 
     setMessages((previousMessages) => ({
       ...previousMessages,
-      [phonenumber]: updatedMessages,
+      [token]: updatedMessages,
     }));
 
     socket!.emit("deleteMessage", {
-      sender: user!.phonenumber,
-      receiver: phonenumber,
+      sender: user!.token,
+      receiver: token,
       messageID,
     });
   };
@@ -141,7 +140,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       socket.on("newMessage", ({ sender, message }) => {
         const audio = audioRef.current;
         audio.play();
-        if (selectedContact?.phonenumber !== sender) {
+        if (selectedContact?.token !== sender) {
           setNotifications((previousNotifications) => {
             return {
               ...previousNotifications,
@@ -182,7 +181,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       socket.on("receive_call", ({ requester, type }) => {
         if (isRequestingCall || isOnACall) {
           socket!.emit("request_call_rejected", {
-            requester: requester.phonenumber,
+            requester: requester.token,
           });
         } else {
           setSelectedContact(requester);

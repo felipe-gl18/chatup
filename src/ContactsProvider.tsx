@@ -17,11 +17,11 @@ export default function ContactsProvider({
   } | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
-  const handleDeleteContact = (deletedUserPhonenumber: string) => {
+  const handleDeleteContact = (deletedUserToken: string) => {
     if (!socket) return;
     socket.emit("deleteUser", {
-      deletingUserPhonenumber: user?.phonenumber,
-      deletedUserPhonenumber,
+      deletingUserToken: user?.token,
+      deletedUserToken,
     });
   };
 
@@ -29,7 +29,7 @@ export default function ContactsProvider({
     if (socket && user) {
       socket.on("disconnectedUser", () => {
         // emitting an event to get the users but the currently one when another user disconnect
-        socket.emit("getUsers", user.phonenumber);
+        socket.emit("getUsers", user.token);
       });
       // listening the answer of the getUsers emitted event
       socket.on("users", (users) => {
@@ -47,9 +47,9 @@ export default function ContactsProvider({
     if (!selectedContact) return;
     setNotifications((previousNotifications) => {
       if (!previousNotifications) return previousNotifications;
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [selectedContact.phonenumber]: _, ...rest } =
-        previousNotifications;
+      const { [selectedContact.token]: _, ...rest } = previousNotifications;
       return rest;
     });
   }, [selectedContact]);

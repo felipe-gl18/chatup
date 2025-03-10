@@ -12,7 +12,7 @@ export default function OptionsDropdown() {
       Icon: <TrashIcon size={26} className="bg-transparent text-red-400" />,
       label: "Delete contact",
       action: () => {
-        handleDeleteContact(selectedContact!.phonenumber);
+        handleDeleteContact(selectedContact!.token);
       },
     },
   ];

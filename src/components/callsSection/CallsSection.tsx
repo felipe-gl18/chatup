@@ -36,7 +36,7 @@ export default function CallsSection() {
   };
   return (
     <>
-      {isRequestingCall && <Requester receiver={selectedContact!} />}
+      {isRequestingCall && <Requester />}
       {isReceivingCall && <Receiver requester={selectedContact!} />}
       {isOnACall && call[currentCallingType]}
     </>

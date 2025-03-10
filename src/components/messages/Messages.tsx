@@ -14,9 +14,9 @@ export default function Messages() {
       {selectedContact ? (
         <>
           <CurrentMessageReciever />
-          {messages?.[selectedContact.phonenumber] && (
+          {messages?.[selectedContact.token] && (
             <div className="relative h-full p-4 space-y-4 overflow-y-auto">
-              {messages[selectedContact.phonenumber].map((message) => (
+              {messages[selectedContact.token].map((message) => (
                 <Message message={message} key={message.randomID} />
               ))}
             </div>

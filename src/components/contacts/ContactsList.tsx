@@ -7,6 +7,6 @@ export default function ContactsList({
   contacts: ContactType[];
 }) {
   return contacts.map((contact) => (
-    <Contact contact={contact} key={contact.phonenumber} />
+    <Contact contact={contact} key={contact.token} />
   ));
 }

@@ -9,7 +9,7 @@ export default function SelectedContactNotFound() {
 
   return (
     <div className="flex h-full w-full flex-col justify-center items-center space-y-8">
-      <p className="font-bold text-3xl">Hello, {user?.name}</p>
+      <p className="font-bold text-3xl">Hello, {user?.username}</p>
       <p className="text-slate-400 font-medium">
         Please, feel free to meet new people on ChatUP
       </p>

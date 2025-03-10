@@ -14,7 +14,7 @@ export default function Contacts() {
 
   const filteredContacts = searchTerm
     ? Object.values(contacts || {}).filter((contact) =>
-        contact.name.toLowerCase().includes(searchTerm.toLowerCase())
+        contact.username.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : Object.values(contacts || {});
 

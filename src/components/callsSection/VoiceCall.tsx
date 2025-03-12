@@ -1,6 +1,6 @@
 import { MicIcon, MicOffIcon, PhoneOffIcon, UserIcon } from "lucide-react";
-import { MutableRefObject, useContext, useState } from "react";
-import { MessagesContext } from "../../MessagesContext";
+import { useContext, useState } from "react";
+import { MessagesContext, StreamRef } from "../../MessagesContext";
 import { Contact } from "../../ContactsContext";
 import { UserContext } from "../../UserContext";
 
@@ -10,11 +10,11 @@ export default function VoiceCall({
   remoteAudioRef,
 }: {
   requester: Contact;
-  localAudioRef: MutableRefObject<HTMLAudioElement | null>;
-  remoteAudioRef: MutableRefObject<HTMLAudioElement | null>;
+  localAudioRef: StreamRef;
+  remoteAudioRef: StreamRef;
 }) {
   const { socket } = useContext(UserContext);
-  const { setIsOnACall } = useContext(MessagesContext);
+  const { setCallStatus } = useContext(MessagesContext);
 
   const [isMicOn, setIsMicOn] = useState<boolean>(true);
 
@@ -35,7 +35,7 @@ export default function VoiceCall({
   };
 
   const handleEndVoiceCall = () => {
-    setIsOnACall(false);
+    setCallStatus(null);
 
     const localStream = localAudioRef.current?.srcObject as MediaStream;
     if (localStream) localStream.getTracks().forEach((track) => track.stop());

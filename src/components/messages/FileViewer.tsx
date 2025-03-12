@@ -6,11 +6,17 @@ import { Document, Page, pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { arrayBufferToUrl } from "../../../util/arrayBufferToBlobURL";
 
 export default function FileViewer({ file }: { file: File }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const memoizedFile = useMemo(() => ({ url: file.content }), [file.content]);
+  const blobURLFileContent = arrayBufferToUrl(file.content!, file.type);
+
+  const memoizedFile = useMemo(
+    () => ({ url: blobURLFileContent }),
+    [blobURLFileContent]
+  );
 
   const handleViewerToggle = () => {
     setIsOpen((prev) => !prev);
@@ -18,7 +24,7 @@ export default function FileViewer({ file }: { file: File }) {
 
   const handleDownloadFile = () => {
     const link = document.createElement("a");
-    link.href = file.content;
+    link.href = blobURLFileContent;
     link.download = file.name;
     document.body.appendChild(link);
     link.click();
@@ -50,7 +56,7 @@ export default function FileViewer({ file }: { file: File }) {
               </button>
             </div>
             <div className="w-full h-screen">
-              <iframe src={memoizedFile.url} className="w-full h-full" />
+              <iframe src={blobURLFileContent} className="w-full h-full" />
             </div>
           </div>
         </div>

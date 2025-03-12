@@ -6,7 +6,7 @@ import {
   PhoneOffIcon,
 } from "lucide-react";
 import { MutableRefObject, useContext, useState } from "react";
-import { MessagesContext } from "../../MessagesContext";
+import { MessagesContext, StreamRef } from "../../MessagesContext";
 import { UserContext } from "../../UserContext";
 import { Contact } from "../../ContactsContext";
 
@@ -16,17 +16,18 @@ export default function VideoCall({
   remoteVideoRef,
 }: {
   requester: Contact;
-  localVideoRef: MutableRefObject<HTMLVideoElement | null>;
-  remoteVideoRef: MutableRefObject<HTMLVideoElement | null>;
+  localVideoRef: StreamRef;
+  remoteVideoRef: StreamRef;
 }) {
   const { socket } = useContext(UserContext);
-  const { setCurrentCallingType, setIsOnACall } = useContext(MessagesContext);
+  const { setCallStatus } = useContext(MessagesContext);
 
   const [isMicOn, setIsMicOn] = useState<boolean>(true);
   const [isCameraOn, setIsCameraOn] = useState<boolean>(true);
 
   const handleMicToggle = () => {
     const localStream = localVideoRef.current?.srcObject as MediaStream;
+    console.log(localStream);
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0];
       if (audioTrack) {
@@ -43,6 +44,8 @@ export default function VideoCall({
 
   const handleCameraToggle = () => {
     const localStream = localVideoRef.current?.srcObject as MediaStream;
+    console.log(localStream);
+
     if (localStream) {
       const videoTrack = localStream.getVideoTracks()[0];
       if (videoTrack) {
@@ -58,8 +61,7 @@ export default function VideoCall({
   };
 
   const handleEndVideoCall = () => {
-    setIsOnACall(false);
-    setCurrentCallingType("voice");
+    setCallStatus(null);
 
     const localStream = localVideoRef.current?.srcObject as MediaStream;
     if (localStream) localStream.getTracks().forEach((track) => track.stop());
@@ -74,7 +76,7 @@ export default function VideoCall({
       <div className="relative flex justify-center items-center h-full w-full bg-white rounded-lg">
         <div className="absolute flex items-center justify-center  w-full h-full bg-slate-500 rounded-md">
           <video
-            ref={remoteVideoRef}
+            ref={remoteVideoRef as MutableRefObject<HTMLVideoElement>}
             className="w-full h-full object-cover"
             autoPlay
             playsInline
@@ -83,7 +85,7 @@ export default function VideoCall({
 
         <div className="absolute right-2 bottom-2 flex justify-center items-center w-[300px] h-[225px] bg-slate-100 rounded-md">
           <video
-            ref={localVideoRef}
+            ref={localVideoRef as MutableRefObject<HTMLVideoElement>}
             className={`w-full h-full rounded-md ${!isCameraOn && "hidden"}`}
             autoPlay
             playsInline

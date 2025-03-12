@@ -18,12 +18,14 @@ export default function MessageForm() {
     audio: "",
     image: {
       name: "",
-      content: "",
+      content: null,
+      type: "",
     },
     file: {
       name: "",
-      preview: "",
-      content: "",
+      preview: null,
+      content: null,
+      type: "",
     },
     sender: "",
   });
@@ -41,12 +43,14 @@ export default function MessageForm() {
       audio: "",
       image: {
         name: "",
-        content: "",
+        content: null,
+        type: "",
       },
       file: {
         name: "",
-        preview: "",
-        content: "",
+        preview: null,
+        content: null,
+        type: "",
       },
       sender: "",
       randomID: handleRandomID(),

@@ -6,65 +6,56 @@ import {
 } from "react";
 import { Contact } from "./ContactsContext";
 
+export type StreamRef = MutableRefObject<
+  HTMLVideoElement | HTMLAudioElement | null
+>;
+
+export type CallType = "voice" | "video";
+
+export type CallStatus = "requesting" | "receiving" | "calling" | null;
+
 export type File = {
   name: string;
-  preview: string;
-  content: string;
-};
-
-export type Image = {
-  name: string;
-  content: string;
+  content: ArrayBuffer | null;
+  type: string;
 };
 
 export type Message = {
   sender: string;
-  randomID: number;
+  UUID: string;
   text: string;
   audio: string;
-  image: Image;
+  image: File;
   file: File;
 };
 
 export type MessagesState = {
-  [phonenumber: string]: Message[];
+  [token: string]: Message[];
 };
 
 type MessagesContextType = {
   messages: MessagesState | null;
   setMessages: Dispatch<SetStateAction<MessagesState | null>>;
-  isReceivingCall: boolean;
-  setIsReceivingCall: Dispatch<SetStateAction<boolean>>;
-  isRequestingCall: boolean;
-  setIsRequestingCall: Dispatch<SetStateAction<boolean>>;
   currentCallingType: "voice" | "video";
   setCurrentCallingType: Dispatch<SetStateAction<"voice" | "video">>;
-  isOnACall: boolean;
-  setIsOnACall: Dispatch<SetStateAction<boolean>>;
-  localVideoRef: MutableRefObject<HTMLVideoElement | null>;
-  remoteVideoRef: MutableRefObject<HTMLVideoElement | null>;
-  localAudioRef: MutableRefObject<HTMLAudioElement | null>;
-  remoteAudioRef: MutableRefObject<HTMLAudioElement | null>;
+  callStatus: CallStatus;
+  setCallStatus: Dispatch<SetStateAction<CallStatus>>;
+  localStreamRef: StreamRef;
+  remoteStreamRef: StreamRef;
   handleSendMessage: (message: Message) => void;
-  handleDeleteMessage: (messageID: number) => void;
+  handleDeleteMessage: (messageUUID: string) => void;
   handleRequestCall: (type: "voice" | "video", receiver: Contact) => void;
 };
 
 export const MessagesContext = createContext<MessagesContextType>({
   messages: { "": [] },
   setMessages: () => {},
-  isReceivingCall: false,
-  setIsReceivingCall: () => {},
-  isRequestingCall: false,
-  setIsRequestingCall: () => {},
   currentCallingType: "voice",
   setCurrentCallingType: () => {},
-  isOnACall: false,
-  setIsOnACall: () => {},
-  localVideoRef: { current: null },
-  remoteVideoRef: { current: null },
-  localAudioRef: { current: null },
-  remoteAudioRef: { current: null },
+  callStatus: null,
+  setCallStatus: () => {},
+  localStreamRef: { current: null },
+  remoteStreamRef: { current: null },
   handleSendMessage: () => {},
   handleDeleteMessage: () => {},
   handleRequestCall: () => {},

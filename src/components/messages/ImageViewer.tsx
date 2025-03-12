@@ -2,8 +2,12 @@ import { DownloadIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { Image } from "../../MessagesContext";
 
+import { arrayBufferToUrl } from "../../../util/arrayBufferToBlobURL";
+
 export default function ImageViewer({ image }: { image: Image }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const blobURLImageContent = arrayBufferToUrl(image.content!, image.type);
 
   const handleViewerToggle = () => {
     setIsOpen((prev) => !prev);
@@ -11,7 +15,7 @@ export default function ImageViewer({ image }: { image: Image }) {
 
   const handleDownloadImage = () => {
     const link = document.createElement("a");
-    link.href = image.content;
+    link.href = blobURLImageContent;
     link.download = image.name;
     document.body.appendChild(link);
     link.click();
@@ -22,7 +26,7 @@ export default function ImageViewer({ image }: { image: Image }) {
     <>
       <img
         className="cursor-pointer transition duration-300 rounded-md hover:opacity-70"
-        src={image.content}
+        src={blobURLImageContent}
         onClick={handleViewerToggle}
       />
       {isOpen && (
@@ -44,7 +48,7 @@ export default function ImageViewer({ image }: { image: Image }) {
             </div>
             <img
               className="max-w-full max-h-[80vh] object-contain shadow-md"
-              src={image.content}
+              src={blobURLImageContent}
             />
           </div>
         </div>

@@ -25,13 +25,14 @@ export default function MessageFormFileUpload({
           ...previousMessage,
           file: {
             name: file.name,
-            preview: reader.result as string,
-            content: reader.result as string,
+            preview: reader.result as ArrayBuffer,
+            content: reader.result as ArrayBuffer,
+            type: file.type,
           },
         };
       });
     };
-    reader.readAsDataURL(file);
+    reader.readAsArrayBuffer(file);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 

@@ -33,9 +33,7 @@ export default function Message({ message }: { message: MessageType }) {
         }`}
       >
         {message.file.content == "" ? null : <FileViewer file={message.file} />}
-        {message.image.content == "" ? null : (
-          <ImageViewer image={message.image} />
-        )}
+        {!message.image.content ? null : <ImageViewer image={message.image} />}
         {message.text == "" ? null : (
           <p className="break-normal">{message.text}</p>
         )}

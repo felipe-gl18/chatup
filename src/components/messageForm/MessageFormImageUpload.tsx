@@ -25,12 +25,13 @@ export default function MessageFormImageUpload({
           ...previousMessage,
           image: {
             name: image.name,
-            content: reader.result as string,
+            content: reader.result as ArrayBuffer,
+            type: image.type,
           },
         };
       });
     };
-    reader.readAsDataURL(image);
+    reader.readAsArrayBuffer(image);
     if (imageInputRef.current) imageInputRef.current.value = "";
   };
 

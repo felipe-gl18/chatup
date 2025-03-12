@@ -6,20 +6,18 @@ import { UserContext } from "../../UserContext";
 
 export default function Receiver({ requester }: { requester: Contact }) {
   const { socket } = useContext(UserContext);
-  const { setIsReceivingCall, setCurrentCallingType, setIsOnACall } =
-    useContext(MessagesContext);
+  const { setCallStatus, currentCallingType } = useContext(MessagesContext);
 
   const handleAcceptCall = () => {
-    setIsReceivingCall(false);
-    setIsOnACall(true);
+    setCallStatus("calling");
     socket!.emit("request_call_accepted", {
       requesterToken: requester.token,
+      type: currentCallingType,
     });
   };
 
   const handleRejectCall = () => {
-    setIsReceivingCall(false);
-    setCurrentCallingType("voice");
+    setCallStatus(null);
     socket!.emit("request_call_rejected", {
       requesterToken: requester.token,
     });

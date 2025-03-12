@@ -7,38 +7,33 @@ import { ContactsContext } from "../../ContactsContext";
 import Requester from "./Requester";
 
 export default function CallsSection() {
-  const {
-    isOnACall,
-    isReceivingCall,
-    isRequestingCall,
-    currentCallingType,
-    localVideoRef,
-    remoteVideoRef,
-    localAudioRef,
-    remoteAudioRef,
-  } = useContext(MessagesContext);
+  const { callStatus, currentCallingType, localStreamRef, remoteStreamRef } =
+    useContext(MessagesContext);
+
   const { selectedContact } = useContext(ContactsContext);
+
   const call = {
     voice: (
       <VoiceCall
         requester={selectedContact!}
-        localAudioRef={localAudioRef!}
-        remoteAudioRef={remoteAudioRef!}
+        localAudioRef={localStreamRef!}
+        remoteAudioRef={remoteStreamRef!}
       />
     ),
     video: (
       <VideoCall
         requester={selectedContact!}
-        localVideoRef={localVideoRef!}
-        remoteVideoRef={remoteVideoRef!}
+        localVideoRef={localStreamRef!}
+        remoteVideoRef={remoteStreamRef!}
       />
     ),
   };
+
   return (
     <>
-      {isRequestingCall && <Requester />}
-      {isReceivingCall && <Receiver requester={selectedContact!} />}
-      {isOnACall && call[currentCallingType]}
+      {callStatus == "requesting" && <Requester />}
+      {callStatus == "receiving" && <Receiver requester={selectedContact!} />}
+      {callStatus == "calling" && call[currentCallingType]}
     </>
   );
 }

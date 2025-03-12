@@ -1,6 +1,12 @@
 import { ReactNode, useContext, useEffect, useRef, useState } from "react";
 import Authentication from "./components/auth/Authentication";
-import { Message, MessagesContext, MessagesState } from "./MessagesContext";
+import {
+  CallStatus,
+  CallType,
+  Message,
+  MessagesContext,
+  MessagesState,
+} from "./MessagesContext";
 import { UserContext } from "./UserContext";
 import { Contact, ContactsContext } from "./ContactsContext";
 
@@ -15,26 +21,21 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   const { setNotifications, selectedContact, setSelectedContact } =
     useContext(ContactsContext);
 
-  const localVideoRef = useRef<HTMLVideoElement | null>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
-  const localAudioRef = useRef<HTMLAudioElement | null>(null);
-  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+  const localStreamRef = useRef<HTMLVideoElement | HTMLAudioElement | null>(
+    null
+  );
+  const remoteStreamRef = useRef<HTMLVideoElement | null>(null);
 
   const peerRef = useRef<RTCPeerConnection | null>(null);
 
   const [messages, setMessages] = useState<MessagesState | null>(null);
-  const [isRequestingCall, setIsRequestingCall] = useState<boolean>(false);
-  const [isReceivingCall, setIsReceivingCall] = useState<boolean>(false);
-  const [currentCallingType, setCurrentCallingType] = useState<
-    "voice" | "video"
-  >("voice");
+  const [callStatus, setCallStatus] = useState<CallStatus>(null);
 
-  const [isOnACall, setIsOnACall] = useState<boolean>(false);
+  const [currentCallingType, setCurrentCallingType] =
+    useState<CallType>("voice");
 
-  const handleRequestCall = (type: "voice" | "video", receiver: Contact) => {
-    setIsRequestingCall(true);
-    setCurrentCallingType(type);
-
+  const handleRequestCall = (type: CallType, receiver: Contact) => {
+    setCallStatus("requesting");
     socket!.emit("request_call", {
       requester: user,
       receiver: receiver!.token,
@@ -42,25 +43,21 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const handleMakeCall = async () => {
+  const handleMakeCall = async (type: CallType) => {
     peerRef.current = new RTCPeerConnection(peerConfig);
+
+    setupPeerListeners(peerRef.current, selectedContact!.token);
+
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: currentCallingType == "video" ? true : false,
+      video: type == "video" ? true : false,
       audio: true,
     });
+
+    if (localStreamRef.current) localStreamRef.current.srcObject = stream;
+
     stream
       .getTracks()
       .forEach((track) => peerRef.current?.addTrack(track, stream));
-
-    if (currentCallingType == "video") {
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-    } else {
-      if (localAudioRef.current) {
-        localAudioRef.current.srcObject = stream;
-      }
-    }
 
     const offer = await peerRef.current.createOffer();
     await peerRef.current.setLocalDescription(offer);
@@ -69,8 +66,8 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       target: selectedContact!.token,
       from: user!.token,
       sdp: peerRef.current.localDescription,
+      type,
     });
-    setupPeerListeners(peerRef.current, selectedContact!.token);
   };
 
   const setupPeerListeners = (peer: RTCPeerConnection, target: string) => {
@@ -81,15 +78,8 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     };
 
     peer.ontrack = (event) => {
-      if (currentCallingType == "video") {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-        }
-      } else {
-        if (remoteAudioRef.current) {
-          remoteAudioRef.current.srcObject = event.streams[0];
-        }
-      }
+      if (remoteStreamRef.current)
+        remoteStreamRef.current.srcObject = event.streams[0];
     };
   };
 
@@ -116,12 +106,10 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   };
 
   const handleDeleteMessage = (
-    messageID: number,
+    UUID: string,
     token: string = selectedContact!.token
   ) => {
-    const updatedMessages = messages![token].filter(
-      (msg) => msg.randomID !== messageID
-    );
+    const updatedMessages = messages![token].filter((msg) => msg.UUID !== UUID);
 
     setMessages((previousMessages) => ({
       ...previousMessages,
@@ -131,9 +119,18 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     socket!.emit("deleteMessage", {
       sender: user!.token,
       receiver: token,
-      messageID,
+      UUID,
     });
   };
+
+  useEffect(
+    () =>
+      console.log(
+        localStreamRef.current?.srcObject,
+        remoteStreamRef.current?.srcObject
+      ),
+    [localStreamRef, remoteStreamRef]
+  );
 
   useEffect(() => {
     if (user && socket) {
@@ -165,10 +162,10 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         });
       });
 
-      socket.on("deleteMessage", ({ sender, messageID }) => {
+      socket.on("deleteMessage", ({ sender, UUID }) => {
         setMessages((previousMessages) => {
           const updatedMessages = previousMessages![sender].filter(
-            (msg) => msg.randomID !== messageID
+            (msg) => msg.UUID !== UUID
           );
 
           return {
@@ -179,64 +176,48 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       });
 
       socket.on("receive_call", ({ requester, type }) => {
-        if (isRequestingCall || isOnACall) {
+        setCurrentCallingType(type);
+        if (callStatus == "calling" || callStatus == "requesting") {
           socket!.emit("request_call_rejected", {
             requester: requester.token,
           });
         } else {
           setSelectedContact(requester);
-          setCurrentCallingType(type);
-          setIsReceivingCall(true);
+          setCallStatus("receiving");
         }
       });
 
       socket.on("request_call_rejected", () => {
-        setIsRequestingCall(false);
-        setCurrentCallingType("voice");
+        setCallStatus(null);
       });
 
-      socket.on("request_call_accepted", async () => {
-        setIsRequestingCall(false);
-        setIsOnACall(true);
-        await handleMakeCall();
+      socket.on("request_call_accepted", async ({ type }) => {
+        setCallStatus("calling");
+        await handleMakeCall(type);
+        setCurrentCallingType(type);
       });
 
       socket.on("finish_call", () => {
-        setIsOnACall(false);
-        if (currentCallingType == "video") {
-          const localStream = localVideoRef.current?.srcObject as MediaStream;
-          if (localStream)
-            localStream.getTracks().forEach((track) => track.stop());
-        } else {
-          const localStream = localAudioRef.current?.srcObject as MediaStream;
-          if (localStream)
-            localStream.getTracks().forEach((track) => track.stop());
-        }
-        setCurrentCallingType("voice");
+        setCallStatus(null);
+        const localStream = localStreamRef.current?.srcObject as MediaStream;
+        if (localStream)
+          localStream.getTracks().forEach((track) => track.stop());
       });
 
-      socket.on("offer", async ({ sdp, from }) => {
+      socket.on("offer", async ({ sdp, from, type }) => {
         peerRef.current = new RTCPeerConnection(peerConfig);
         peerRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
         setupPeerListeners(peerRef.current, from);
 
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: currentCallingType == "video" ? true : false,
+          video: type == "video" ? true : false,
           audio: true,
         });
         stream
           .getTracks()
           .forEach((track) => peerRef.current?.addTrack(track, stream));
 
-        if (currentCallingType == "video") {
-          if (localVideoRef.current) {
-            localVideoRef.current.srcObject = stream;
-          }
-        } else {
-          if (localAudioRef.current) {
-            localAudioRef.current.srcObject = stream;
-          }
-        }
+        if (localStreamRef.current) localStreamRef.current.srcObject = stream;
 
         const answer = await peerRef.current.createAnswer();
         await peerRef.current.setLocalDescription(answer);
@@ -273,18 +254,12 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       value={{
         messages,
         setMessages,
-        isReceivingCall,
-        setIsReceivingCall,
-        isRequestingCall,
-        setIsRequestingCall,
         currentCallingType,
         setCurrentCallingType,
-        localVideoRef,
-        remoteVideoRef,
-        localAudioRef,
-        remoteAudioRef,
-        isOnACall,
-        setIsOnACall,
+        callStatus,
+        setCallStatus,
+        localStreamRef,
+        remoteStreamRef,
         handleSendMessage,
         handleDeleteMessage,
         handleRequestCall,

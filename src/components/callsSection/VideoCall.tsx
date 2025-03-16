@@ -27,6 +27,7 @@ export default function VideoCall({
 
   const handleMicToggle = () => {
     const localStream = localVideoRef.current?.srcObject as MediaStream;
+    console.log(localStream);
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0];
       if (audioTrack) {
@@ -84,7 +85,7 @@ export default function VideoCall({
         <div className="absolute right-2 bottom-2 flex justify-center items-center w-[300px] h-[225px] bg-slate-100 rounded-md">
           <video
             ref={localVideoRef as MutableRefObject<HTMLVideoElement>}
-            className={`w-full h-full rounded-md`}
+            className={`w-full h-full rounded-md ${!isCameraOn && "hidden"}`}
             autoPlay
             playsInline
             muted

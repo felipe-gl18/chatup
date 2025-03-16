@@ -56,6 +56,8 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       .getTracks()
       .forEach((track) => peerRef.current?.addTrack(track, stream));
 
+    if (localStreamRef.current) localStreamRef.current.srcObject = stream;
+
     setupPeerListeners(peerRef.current, selectedContact!.token);
 
     const offer = await peerRef.current.createOffer();
@@ -163,7 +165,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
       socket.on("offer", async ({ sdp, from, type }) => {
         peerRef.current = new RTCPeerConnection(peerConfig);
-        peerRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
 
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
@@ -174,7 +175,11 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
           .getTracks()
           .forEach((track) => peerRef.current?.addTrack(track, stream));
 
+        if (localStreamRef.current) localStreamRef.current.srcObject = stream;
+
         setupPeerListeners(peerRef.current, from);
+
+        peerRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
 
         const answer = await peerRef.current.createAnswer();
         await peerRef.current.setLocalDescription(answer);
@@ -205,10 +210,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       };
     }
   }, [user, socket, selectedContact]);
-
-  useEffect(() => {
-    console.log(localStreamRef.current, callStatus, currentCallingType);
-  }, [callStatus, currentCallingType]);
 
   return (
     <MessagesContext.Provider

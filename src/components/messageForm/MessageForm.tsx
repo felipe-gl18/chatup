@@ -10,25 +10,7 @@ export default function MessageForm() {
 
   const messageInputRef = useRef<HTMLInputElement>(null);
 
-  const handleRandomID = () => Math.random() * 100;
-
-  const [message, setMessage] = useState<Message>({
-    randomID: handleRandomID(),
-    text: "",
-    audio: "",
-    image: {
-      name: "",
-      content: null,
-      type: "",
-    },
-    file: {
-      name: "",
-      preview: null,
-      content: null,
-      type: "",
-    },
-    sender: "",
-  });
+  const [message, setMessage] = useState<Message>({});
 
   const handleFormClick = () => {
     if (!messageInputRef.current) return;
@@ -37,24 +19,8 @@ export default function MessageForm() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    handleSendMessage(message);
-    setMessage({
-      text: "",
-      audio: "",
-      image: {
-        name: "",
-        content: null,
-        type: "",
-      },
-      file: {
-        name: "",
-        preview: null,
-        content: null,
-        type: "",
-      },
-      sender: "",
-      randomID: handleRandomID(),
-    });
+    handleSendMessage(message!);
+    setMessage({});
   };
 
   return (

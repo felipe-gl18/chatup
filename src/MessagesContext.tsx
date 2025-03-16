@@ -21,12 +21,12 @@ export type File = {
 };
 
 export type Message = {
-  sender: string;
-  UUID: string;
-  text: string;
-  audio: string;
-  image: File;
-  file: File;
+  UUID?: string;
+  text?: string;
+  audio?: File;
+  image?: File;
+  file?: File;
+  sender?: string;
 };
 
 export type MessagesState = {
@@ -43,7 +43,7 @@ type MessagesContextType = {
   localStreamRef: StreamRef;
   remoteStreamRef: StreamRef;
   handleSendMessage: (message: Message) => void;
-  handleDeleteMessage: (messageUUID: string) => void;
+  handleDeleteMessage: (UUID: string, accessToken: string) => void;
   handleRequestCall: (type: "voice" | "video", receiver: Contact) => void;
 };
 

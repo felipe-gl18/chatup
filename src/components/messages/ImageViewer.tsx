@@ -1,10 +1,9 @@
 import { DownloadIcon, XIcon } from "lucide-react";
 import { useState } from "react";
-import { Image } from "../../MessagesContext";
-
 import { arrayBufferToUrl } from "../../../util/arrayBufferToBlobURL";
+import { File } from "../../MessagesContext";
 
-export default function ImageViewer({ image }: { image: Image }) {
+export default function ImageViewer({ image }: { image: File }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const blobURLImageContent = arrayBufferToUrl(image.content!, image.type);

@@ -36,6 +36,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
   const handleRequestCall = (type: CallType, receiver: Contact) => {
     setCallStatus("requesting");
+    setCurrentCallingType(type);
     socket!.emit("request_call", {
       requester: user,
       receiver: receiver!.token,
@@ -46,18 +47,16 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   const handleMakeCall = async (type: CallType) => {
     peerRef.current = new RTCPeerConnection(peerConfig);
 
-    setupPeerListeners(peerRef.current, selectedContact!.token);
-
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: type == "video" ? true : false,
       audio: true,
+      video: type == "video" ? true : false,
     });
-
-    if (localStreamRef.current) localStreamRef.current.srcObject = stream;
 
     stream
       .getTracks()
       .forEach((track) => peerRef.current?.addTrack(track, stream));
+
+    setupPeerListeners(peerRef.current, selectedContact!.token);
 
     const offer = await peerRef.current.createOffer();
     await peerRef.current.setLocalDescription(offer);
@@ -78,26 +77,13 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     };
 
     peer.ontrack = (event) => {
+      const [remoteStream] = event.streams;
       if (remoteStreamRef.current)
-        remoteStreamRef.current.srcObject = event.streams[0];
+        remoteStreamRef.current.srcObject = remoteStream;
     };
   };
 
   const handleSendMessage = (message: Message) => {
-    setMessages((previousMessages) => {
-      if (previousMessages) {
-        return {
-          ...previousMessages,
-          [selectedContact!.token]: [
-            ...(previousMessages[selectedContact!.token] || []),
-            { ...message, sender: user!.token },
-          ],
-        };
-      }
-      return {
-        [selectedContact!.token]: [{ ...message, sender: user!.token }],
-      };
-    });
     socket!.emit("sendMessage", {
       sender: user!.token,
       receiver: selectedContact!.token,
@@ -107,71 +93,43 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
   const handleDeleteMessage = (
     UUID: string,
-    token: string = selectedContact!.token
+    accessToken: string = selectedContact!.token
   ) => {
-    const updatedMessages = messages![token].filter((msg) => msg.UUID !== UUID);
-
-    setMessages((previousMessages) => ({
-      ...previousMessages,
-      [token]: updatedMessages,
-    }));
-
     socket!.emit("deleteMessage", {
-      sender: user!.token,
-      receiver: token,
+      requester: user!.token,
+      receiver: selectedContact!.token,
       UUID,
+      accessToken,
     });
   };
 
-  useEffect(
-    () =>
-      console.log(
-        localStreamRef.current?.srcObject,
-        remoteStreamRef.current?.srcObject
-      ),
-    [localStreamRef, remoteStreamRef]
-  );
-
   useEffect(() => {
     if (user && socket) {
-      socket.on("newMessage", ({ sender, message }) => {
+      socket.on("newMessage", (message) => {
         const audio = audioRef.current;
         audio.play();
-        if (selectedContact?.token !== sender) {
+
+        if (selectedContact?.token !== message.sender) {
           setNotifications((previousNotifications) => {
             return {
               ...previousNotifications,
-              [sender]: { text: message.text },
+              [message.sender]: { text: message.text },
             };
           });
         }
 
-        setMessages((previousMessages) => {
-          if (previousMessages) {
-            return {
-              ...previousMessages,
-              [sender]: [
-                ...(previousMessages[sender] || []),
-                { ...message, sender },
-              ],
-            };
-          }
-          return {
-            [sender]: [{ ...message, sender }],
-          };
-        });
+        setMessages((previousMessages) => ({
+          ...(previousMessages || {}),
+          ...message,
+        }));
       });
 
-      socket.on("deleteMessage", ({ sender, UUID }) => {
-        setMessages((previousMessages) => {
-          const updatedMessages = previousMessages![sender].filter(
-            (msg) => msg.UUID !== UUID
+      socket.on("deleteMessage", ({ UUID, accessToken }) => {
+        setMessages((previousMessage) => {
+          const updatedMessages = previousMessage![accessToken].filter(
+            (message) => message.UUID !== UUID
           );
-
-          return {
-            ...previousMessages,
-            [sender]: updatedMessages,
-          };
+          return { ...previousMessage, [accessToken]: updatedMessages };
         });
       });
 
@@ -194,7 +152,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       socket.on("request_call_accepted", async ({ type }) => {
         setCallStatus("calling");
         await handleMakeCall(type);
-        setCurrentCallingType(type);
       });
 
       socket.on("finish_call", () => {
@@ -207,17 +164,17 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       socket.on("offer", async ({ sdp, from, type }) => {
         peerRef.current = new RTCPeerConnection(peerConfig);
         peerRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
-        setupPeerListeners(peerRef.current, from);
 
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: type == "video" ? true : false,
           audio: true,
+          video: type == "video" ? true : false,
         });
+
         stream
           .getTracks()
           .forEach((track) => peerRef.current?.addTrack(track, stream));
 
-        if (localStreamRef.current) localStreamRef.current.srcObject = stream;
+        setupPeerListeners(peerRef.current, from);
 
         const answer = await peerRef.current.createAnswer();
         await peerRef.current.setLocalDescription(answer);
@@ -248,6 +205,10 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       };
     }
   }, [user, socket, selectedContact]);
+
+  useEffect(() => {
+    console.log(localStreamRef.current, callStatus, currentCallingType);
+  }, [callStatus, currentCallingType]);
 
   return (
     <MessagesContext.Provider

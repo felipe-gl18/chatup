@@ -18,7 +18,7 @@ export default function MessageFormInput({
   return (
     <input
       ref={messageInputRef}
-      value={message.text}
+      value={message.text || ""}
       onChange={handleChange}
       className="w-full bg-transparent outline-0"
       placeholder="Type a message here!"

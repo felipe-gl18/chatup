@@ -20,7 +20,7 @@ export default function ContactsProvider({
   const handleDeleteContact = (deletedUserToken: string) => {
     if (!socket) return;
     socket.emit("deleteUser", {
-      deletingUserToken: user?.token,
+      deletingUserToken: user!.token,
       deletedUserToken,
     });
   };

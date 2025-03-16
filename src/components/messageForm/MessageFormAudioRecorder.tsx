@@ -20,13 +20,20 @@ export default function MessageFormAudioRecorder({
         mediaRecorderRef.current = new MediaRecorder(stream);
         mediaRecorderRef.current.start();
         setIsRecording(true);
-        mediaRecorderRef.current.ondataavailable = (event) => {
+        mediaRecorderRef.current.ondataavailable = async (event) => {
           const blob = new Blob([event.data], {
-            type: "audio/webm; codecs=opus",
+            type: "audio/webm; codesc=opus",
           });
-          setMessage((previousMessage) => {
-            return { ...previousMessage, audio: URL.createObjectURL(blob) };
-          });
+          const arrayBuffer = await blob.arrayBuffer();
+
+          setMessage((previousMessage) => ({
+            ...previousMessage,
+            audio: {
+              name: `recording-${Date.now()}.webm`,
+              content: arrayBuffer,
+              type: blob.type,
+            },
+          }));
         };
       })
       .catch((error) => {
@@ -47,8 +54,16 @@ export default function MessageFormAudioRecorder({
 
   const handleDeleteRecordedAudio = () => {
     setMessage((previousMessage) => {
-      return { ...previousMessage, audio: "" };
+      return { ...previousMessage, audio: undefined };
     });
+  };
+
+  const getAudioSrc = () => {
+    if (!message.audio?.content) return "";
+    const blob = new Blob([message.audio.content], {
+      type: message.audio.type,
+    });
+    return URL.createObjectURL(blob);
   };
 
   return (
@@ -70,7 +85,7 @@ export default function MessageFormAudioRecorder({
       )}
       {message.audio && (
         <div className="flex items-center gap-2">
-          <audio controls src={message.audio}></audio>
+          <audio controls src={getAudioSrc()}></audio>
           <div
             onClick={handleDeleteRecordedAudio}
             className="p-2 rounded-full cursor-pointer transition duration-300 hover:bg-red-400 hover:text-white"

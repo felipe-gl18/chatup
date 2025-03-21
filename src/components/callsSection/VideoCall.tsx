@@ -27,7 +27,6 @@ export default function VideoCall({
 
   const handleMicToggle = () => {
     const localStream = localVideoRef.current?.srcObject as MediaStream;
-    console.log(localStream);
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0];
       if (audioTrack) {

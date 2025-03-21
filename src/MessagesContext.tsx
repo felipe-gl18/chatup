@@ -36,15 +36,15 @@ export type MessagesState = {
 type MessagesContextType = {
   messages: MessagesState | null;
   setMessages: Dispatch<SetStateAction<MessagesState | null>>;
-  currentCallingType: "voice" | "video";
-  setCurrentCallingType: Dispatch<SetStateAction<"voice" | "video">>;
+  currentCallingType: CallType;
+  setCurrentCallingType: Dispatch<SetStateAction<CallType>>;
   callStatus: CallStatus;
   setCallStatus: Dispatch<SetStateAction<CallStatus>>;
   localStreamRef: StreamRef;
   remoteStreamRef: StreamRef;
   handleSendMessage: (message: Message) => void;
   handleDeleteMessage: (UUID: string, accessToken: string) => void;
-  handleRequestCall: (type: "voice" | "video", receiver: Contact) => void;
+  handleRequestCall: (type: CallType, receiver: Contact) => void;
 };
 
 export const MessagesContext = createContext<MessagesContextType>({

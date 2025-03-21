@@ -44,7 +44,7 @@ export default function Message({
       }`}
     >
       <div
-        className={`flex w-max max-w-[400px]  flex-col gap-4 p-4 rounded-b-2xl rounded-tr-2xl ${
+        className={`flex w-max max-w-[300px]  flex-col gap-4 p-4 rounded-b-2xl rounded-tr-2xl ${
           isSender ? messageContentStyles.sender : messageContentStyles.receiver
         }`}
       >
@@ -55,7 +55,7 @@ export default function Message({
           <audio
             src={getAudioSrc()}
             controls
-            className="min-w-[300px] w-full"
+            className="min-w-[250px] w-full"
           ></audio>
         )}
       </div>

@@ -5,7 +5,7 @@ import Profile from "../Profile";
 import { ContactsContext } from "../../ContactsContext";
 
 export default function Contacts() {
-  const { contacts } = useContext(ContactsContext);
+  const { contacts, selectedContact } = useContext(ContactsContext);
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleContactFilter = (event: ChangeEvent<HTMLInputElement>) => {
@@ -19,7 +19,11 @@ export default function Contacts() {
     : Object.values(contacts || {});
 
   return (
-    <div className="flex flex-col w-2/6 h-screen bg-gray-700">
+    <div
+      className={`w-full lg:w-2/6 flex-col ${
+        selectedContact ? "hidden" : "flex"
+      } md:flex h-screen bg-gray-700`}
+    >
       <div className="flex justify-between px-4">
         <Profile />
         <ContactSearch handleContactFilter={handleContactFilter} />

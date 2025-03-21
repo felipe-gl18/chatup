@@ -9,32 +9,25 @@ import {
 } from "./MessagesContext";
 import { UserContext } from "./UserContext";
 import { Contact, ContactsContext } from "./ContactsContext";
-
-const peerConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+import { useWebRTC } from "./hooks/useWebRTC";
 
 export function MessagesProvider({ children }: { children: ReactNode }) {
-  const audioRef = useRef<HTMLAudioElement>(
-    new Audio("../../audiosEffect/messageNotification.mp3")
-  );
-
   const { user, socket } = useContext(UserContext);
-  const { setNotifications, selectedContact, setSelectedContact } =
-    useContext(ContactsContext);
-
-  const localStreamRef = useRef<HTMLVideoElement | HTMLAudioElement | null>(
-    null
-  );
-  const remoteStreamRef = useRef<HTMLVideoElement | null>(null);
-
-  const peerRef = useRef<RTCPeerConnection | null>(null);
+  const { selectedContact, setSelectedContact } = useContext(ContactsContext);
 
   const [messages, setMessages] = useState<MessagesState | null>(null);
   const [callStatus, setCallStatus] = useState<CallStatus>(null);
-
   const [currentCallingType, setCurrentCallingType] =
     useState<CallType>("voice");
 
+  const localStreamRef = useRef(null);
+  const remoteStreamRef = useRef(null);
+
+  const { startCall, answerCall, addIceCandidate, endCall, handleAnswer } =
+    useWebRTC(socket!, localStreamRef, remoteStreamRef);
+
   const handleRequestCall = (type: CallType, receiver: Contact) => {
+    setSelectedContact(receiver);
     setCallStatus("requesting");
     setCurrentCallingType(type);
     socket!.emit("request_call", {
@@ -42,47 +35,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       receiver: receiver!.token,
       type,
     });
-  };
-
-  const handleMakeCall = async (type: CallType) => {
-    peerRef.current = new RTCPeerConnection(peerConfig);
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: type == "video" ? true : false,
-    });
-
-    stream
-      .getTracks()
-      .forEach((track) => peerRef.current?.addTrack(track, stream));
-
-    if (localStreamRef.current) localStreamRef.current.srcObject = stream;
-
-    setupPeerListeners(peerRef.current, selectedContact!.token);
-
-    const offer = await peerRef.current.createOffer();
-    await peerRef.current.setLocalDescription(offer);
-
-    socket!.emit("offer", {
-      target: selectedContact!.token,
-      from: user!.token,
-      sdp: peerRef.current.localDescription,
-      type,
-    });
-  };
-
-  const setupPeerListeners = (peer: RTCPeerConnection, target: string) => {
-    peer.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket?.emit("ice-candidate", { target, candidate: event.candidate });
-      }
-    };
-
-    peer.ontrack = (event) => {
-      const [remoteStream] = event.streams;
-      if (remoteStreamRef.current)
-        remoteStreamRef.current.srcObject = remoteStream;
-    };
   };
 
   const handleSendMessage = (message: Message) => {
@@ -106,110 +58,71 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (user && socket) {
-      socket.on("newMessage", (message) => {
-        const audio = audioRef.current;
-        audio.play();
+    if (!socket || !user) return;
 
-        if (selectedContact?.token !== message.sender) {
-          setNotifications((previousNotifications) => {
-            return {
-              ...previousNotifications,
-              [message.sender]: { text: message.text },
-            };
-          });
-        }
+    socket.on("newMessage", (message) => {
+      setMessages((prev) => ({
+        ...(prev || {}),
+        ...message,
+      }));
+    });
 
-        setMessages((previousMessages) => ({
-          ...(previousMessages || {}),
-          ...message,
-        }));
+    socket.on("deleteMessage", ({ UUID, accessToken }) => {
+      setMessages((prev) => {
+        const updated = prev![accessToken].filter(
+          (message) => message.UUID !== UUID
+        );
+        return { ...prev, [accessToken]: updated };
       });
+    });
 
-      socket.on("deleteMessage", ({ UUID, accessToken }) => {
-        setMessages((previousMessage) => {
-          const updatedMessages = previousMessage![accessToken].filter(
-            (message) => message.UUID !== UUID
-          );
-          return { ...previousMessage, [accessToken]: updatedMessages };
+    socket.on("receive_call", ({ requester, type }) => {
+      setCurrentCallingType(type);
+      if (callStatus === "calling" || callStatus === "requesting") {
+        socket!.emit("request_call_rejected", {
+          requesterToken: requester.token,
         });
-      });
+      } else {
+        setSelectedContact(requester);
+        setCallStatus("receiving");
+      }
+    });
 
-      socket.on("receive_call", ({ requester, type }) => {
-        setCurrentCallingType(type);
-        if (callStatus == "calling" || callStatus == "requesting") {
-          socket!.emit("request_call_rejected", {
-            requester: requester.token,
-          });
-        } else {
-          setSelectedContact(requester);
-          setCallStatus("receiving");
-        }
-      });
+    socket.on("request_call_rejected", () => setCallStatus(null));
 
-      socket.on("request_call_rejected", () => {
-        setCallStatus(null);
-      });
+    socket.on("request_call_accepted", async ({ type }) => {
+      setCallStatus("calling");
+      await startCall(type, selectedContact!.token);
+    });
 
-      socket.on("request_call_accepted", async ({ type }) => {
-        setCallStatus("calling");
-        await handleMakeCall(type);
-      });
+    socket.on("offer", async ({ sdp, from, type }) => {
+      await answerCall(sdp, from, type);
+    });
 
-      socket.on("finish_call", () => {
-        setCallStatus(null);
-        const localStream = localStreamRef.current?.srcObject as MediaStream;
-        if (localStream)
-          localStream.getTracks().forEach((track) => track.stop());
-      });
+    socket.on("answer", async ({ sdp }) => {
+      await handleAnswer(sdp);
+    });
 
-      socket.on("offer", async ({ sdp, from, type }) => {
-        peerRef.current = new RTCPeerConnection(peerConfig);
+    socket.on("ice-candidate", async (candidate) => {
+      await addIceCandidate(candidate);
+    });
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: type == "video" ? true : false,
-        });
+    socket.on("finish_call", () => {
+      setCallStatus(null);
+      endCall();
+    });
 
-        stream
-          .getTracks()
-          .forEach((track) => peerRef.current?.addTrack(track, stream));
-
-        if (localStreamRef.current) localStreamRef.current.srcObject = stream;
-
-        setupPeerListeners(peerRef.current, from);
-
-        peerRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
-
-        const answer = await peerRef.current.createAnswer();
-        await peerRef.current.setLocalDescription(answer);
-
-        socket.emit("answer", {
-          target: from,
-          sdp: peerRef.current.localDescription,
-        });
-      });
-
-      socket.on("answer", ({ sdp }) => {
-        peerRef.current?.setRemoteDescription(new RTCSessionDescription(sdp));
-      });
-
-      socket.on("ice-candidate", (candidate) => {
-        peerRef.current?.addIceCandidate(new RTCIceCandidate(candidate));
-      });
-
-      return () => {
-        socket.off("newMessage");
-        socket.off("deleteMessage");
-        socket.off("receive_call");
-        socket.off("request_call_rejected");
-        socket.off("request_call_accepted");
-        socket.off("offer");
-        socket.off("answer");
-        socket.off("ice-candidate");
-      };
-    }
-  }, [user, socket, selectedContact]);
+    return () => {
+      socket.off("newMessage");
+      socket.off("deleteMessage");
+      socket.off("receive_call");
+      socket.off("request_call_rejected");
+      socket.off("request_call_accepted");
+      socket.off("offer");
+      socket.off("answer");
+      socket.off("ice-candidate");
+    };
+  }, [user, socket, selectedContact, callStatus]);
 
   return (
     <MessagesContext.Provider

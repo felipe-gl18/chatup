@@ -27,7 +27,7 @@ export default function SelectedContact() {
         >
           <VideoIcon size={26} />
         </div>
-        <OptionsDropdown />
+        <OptionsDropdown contact={selectedContact!} />
       </div>
     </div>
   );

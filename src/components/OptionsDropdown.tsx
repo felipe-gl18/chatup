@@ -1,9 +1,8 @@
-import { useContext, useRef } from "react";
+import { MouseEvent, useContext, useRef } from "react";
 import { EllipsisIcon, TrashIcon } from "lucide-react";
-import { ContactsContext } from "../ContactsContext";
+import { ContactsContext, Contact as ContactType } from "../ContactsContext";
 
-export default function OptionsDropdown() {
-  const { selectedContact } = useContext(ContactsContext);
+export default function OptionsDropdown({ contact }: { contact: ContactType }) {
   const { handleDeleteContact } = useContext(ContactsContext);
   const optionsRef = useRef<HTMLDivElement>(null);
   const items = [
@@ -11,8 +10,9 @@ export default function OptionsDropdown() {
       value: "Delete",
       Icon: <TrashIcon size={26} className="bg-transparent text-red-400" />,
       label: "Delete contact",
-      action: () => {
-        handleDeleteContact(selectedContact!.token);
+      action: (e: MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        handleDeleteContact(contact!.token);
       },
     },
   ];

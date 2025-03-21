@@ -85,7 +85,7 @@ export default function MessageFormAudioRecorder({
       )}
       {message.audio && (
         <div className="flex items-center gap-2">
-          <audio controls src={getAudioSrc()}></audio>
+          <audio controls src={getAudioSrc()} className="w-[100px]"></audio>
           <div
             onClick={handleDeleteRecordedAudio}
             className="p-2 rounded-full cursor-pointer transition duration-300 hover:bg-red-400 hover:text-white"

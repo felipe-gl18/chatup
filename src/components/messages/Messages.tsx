@@ -16,7 +16,11 @@ export default function Messages() {
     .join("|");
 
   return (
-    <div className="w-4/6 h-screen justify-between flex flex-col">
+    <div
+      className={`md:w-4/6 w-full h-screen justify-between ${
+        selectedContact ? "flex" : "hidden"
+      }  lg:flex flex-col`}
+    >
       {selectedContact ? (
         <>
           <CurrentMessageReciever />

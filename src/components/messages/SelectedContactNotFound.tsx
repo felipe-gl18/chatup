@@ -32,11 +32,11 @@ export default function SelectedContactNotFound() {
           onClick={() => {
             window.open("https://github.com/felipe-gl18");
           }}
-          className={`flex gap-2 bg-slate-700 text-white p-4 transition duration-300 
+          className={`flex gap-2 bg-slate-700  p-4 transition duration-300 
             ${
               isLinkedinHovered
                 ? "bg-transparent border-slate-700 text-slate-700"
-                : ""
+                : "text-white"
             } 
             hover:bg-transparent hover:text-slate-700 hover:border-slate-700`}
         >

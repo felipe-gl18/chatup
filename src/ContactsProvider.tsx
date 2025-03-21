@@ -1,5 +1,5 @@
 import { ReactNode, useContext, useEffect, useState } from "react";
-import { Contact, ContactsContext, Notification } from "./ContactsContext";
+import { Contact, ContactsContext } from "./ContactsContext";
 import { UserContext } from "./UserContext";
 
 export default function ContactsProvider({
@@ -12,9 +12,7 @@ export default function ContactsProvider({
   const [contacts, setContacts] = useState<{ [key: string]: Contact } | null>(
     null
   );
-  const [notifications, setNotifications] = useState<{
-    [key: string]: Notification;
-  } | null>(null);
+
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
   const handleDeleteContact = (deletedUserToken: string) => {
@@ -43,24 +41,11 @@ export default function ContactsProvider({
     }
   }, [user, socket]);
 
-  useEffect(() => {
-    if (!selectedContact) return;
-    setNotifications((previousNotifications) => {
-      if (!previousNotifications) return previousNotifications;
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [selectedContact.token]: _, ...rest } = previousNotifications;
-      return rest;
-    });
-  }, [selectedContact]);
-
   return (
     <ContactsContext.Provider
       value={{
         contacts,
         setContacts,
-        notifications,
-        setNotifications,
         handleDeleteContact,
         selectedContact,
         setSelectedContact,

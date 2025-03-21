@@ -2,10 +2,9 @@ import { useContext } from "react";
 import { ContactsContext, Contact as ContactType } from "../../ContactsContext";
 import { PhoneCallIcon, UserIcon, VideoIcon } from "lucide-react";
 import { MessagesContext } from "../../MessagesContext";
-import Notification from "./Notification";
 
 export default function Contact({ contact }: { contact: ContactType }) {
-  const { notifications, setSelectedContact } = useContext(ContactsContext);
+  const { setSelectedContact } = useContext(ContactsContext);
   const { handleRequestCall } = useContext(MessagesContext);
   const handleSelectedContact = () => setSelectedContact(contact);
 
@@ -21,9 +20,6 @@ export default function Contact({ contact }: { contact: ContactType }) {
         <div className="flex-grow">
           <p className="font-bold">{contact.username}</p>
           <p className="text-sm text-slate-400">{contact.email}</p>
-          {notifications?.[contact.token] && (
-            <Notification text={notifications?.[contact.token].text} />
-          )}
         </div>
         <div className="lg:flex hidden flex-shrink-0 justify-center items-center gap-4">
           <div

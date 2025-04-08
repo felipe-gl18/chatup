@@ -37,7 +37,7 @@ export default function Message({
 
   return (
     <div
-      className={`group w-full space-y-2 flex flex-col ${
+      className={`group w-fit space-y-2 flex flex-col ${
         isSender
           ? messageContainerStyles.sender
           : messageContainerStyles.receiver
